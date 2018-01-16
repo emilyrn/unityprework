@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour {
 
-	public GameObject[] hazards;
+	public GameObject hazard;
 	public Vector3 spawnValues;
 	public int hazardCount;
 	public float spawnWait;
@@ -14,28 +14,31 @@ public class GameController : MonoBehaviour {
 	public Text scoreText;
 	public Text gameOverText;
 	public Text winText;
+	public float totaltime = 0;
 
 	private bool gameOver;
 	private int score;
+	private bool winner;
 
 	void Start ()
 	{
 		gameOver = false;
+		winner = false;
 		gameOverText.text = "";
 		score = 0;
 		UpdateScore ();
 		StartCoroutine (SpawnWaves ());
 		winText.text = "";
 	}
+		
 	IEnumerator SpawnWaves () 
 	{	
-		
+		yield return new WaitForSeconds (startWait);
 		while (true)
 		{
-			yield return new WaitForSeconds (startWait);
+
 			for (int i = 0; i < hazardCount; i++)
 			{
-				GameObject hazard = hazards [Random.Range (0, hazards.Length)];
 				Vector3 spawnPosition = new Vector3 (Random.Range (-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z);
 				Quaternion spawnRotation = Quaternion.identity;
 				Instantiate (hazard, spawnPosition, spawnRotation);
@@ -43,13 +46,13 @@ public class GameController : MonoBehaviour {
 			}
 			yield return new WaitForSeconds (waveWait);
 
-			if (score == 100) {
-				Win ();
+			if (gameOver) {
 				break;
 			}
 
-			if (gameOver) {
+			if (winner) {
 				break;
+
 			}
 		}
 	}
@@ -63,6 +66,11 @@ public class GameController : MonoBehaviour {
 	void UpdateScore ()
 	{
 		scoreText.text = "Score: " + score;
+
+		if (score == 100) {
+			winner = true;
+			Winner ();
+		}
 	}
 
 	public void GameOver ()
@@ -70,7 +78,7 @@ public class GameController : MonoBehaviour {
 		gameOverText.text = "Game Over :(";
 		gameOver = true;
 	}
-	public void Win ()
+	public void Winner ()
 	{
 		winText.text = "You Win :D";
 	}
